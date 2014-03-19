@@ -92,7 +92,7 @@ public class DrawingTest implements Runnable {
 		public void paintComponent(Graphics g) {
 			g.setColor(Color.WHITE);
 			g.fillRect(0, 0, this.getWidth(), this.getHeight());
-			g.setColor(Color.BLUE);
+			g.setColor(Color.BLACK);
 			for (int i = 1; i < drawingTest.getPoints().size(); i++) {
 				Point p1 = drawingTest.getPoints().get(i - 1);
 				Point p2 = drawingTest.getPoints().get(i);

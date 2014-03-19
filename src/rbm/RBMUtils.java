@@ -214,11 +214,6 @@ public class RBMUtils {
 	public static void featuresToPicture(double[][] weights, double[] visible, double[] hidden) {
 		Picture image = Utils.createPicture(5 * 17, 5 * 17);
 		
-		Color c;
-		Color[] picCol = new Color[256];
-		
-		int startX = 0;
-		int startY = 0;
 		
 		double maxW = 0;
 		double minW = 0;
@@ -232,8 +227,6 @@ public class RBMUtils {
 		}
 		
 		dif = maxW - minW;
-		
-		double shade;
 		
 		int numHid = 0;
 		for (int h = 0; h < image.getHeight(); h = h + 17) {
@@ -265,12 +258,11 @@ public class RBMUtils {
 			double[] hidden, int numHid, int h, int w, double dif, double minW, Picture image) {
 		double shade;
 		int numVis = 0;
-		//Color[] picCol = new Color[256];
 		for (int j = h; j < h + 16; j++) {
 			for (int i = w; i < w + 16; i++) {
 				shade = (weights[numVis][numHid] - minW) / dif;;
 				shade *= 255;
-				//shade -= 255;
+				shade -= 255;
 				int s = (int) shade;
 				image.setPixel(i, j, new Color(s, s, s)); 
 				numVis++;
