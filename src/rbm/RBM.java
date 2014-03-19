@@ -2,9 +2,6 @@ package rbm;
 
 public class RBM {
 
-	private static final double INITIAL_WEIGHT_SCALE_FACTOR = 0.1;
-	//private static final double INITIAL_BIAS_SCALE_FACTOR = 0.1;
-
 	private double[] visibleBias;
 	private double[] hiddenBias;
 
@@ -21,23 +18,26 @@ public class RBM {
 		hidden = new double[numHidden];
 		weights = new double[numVisible][numHidden];
 
-		RBMUtils.initializeWeights(weights, INITIAL_WEIGHT_SCALE_FACTOR);
-		
-		//Utils.initializeVisibleBias(visibleBias, INITIAL_BIAS_SCALE_FACTOR);
-		
-		
-		// Set the hidden biases to 0
-		//Utils.initializeHiddenBias(hiddenBias, INITIAL_BIAS_SCALE_FACTOR);
+		RBMUtils.initializeWeights(weights);
 
 	}
 
 	public void train(double[][] trainingSet, double learningRate, int numEpochs) {
+		
+		double[] visibleB = new double[trainingSet.length];
+		
+		for (int i = 0; i < trainingSet.length; i++) {
+			double p = RBMUtils.getP(trainingSet[i]);
+			double x = p / (1 - p);
+			visibleB[i] = Math.log(x);
+		}
 
 		for (int index = 0; index < numEpochs; index++) {
 			
-			for (double[] lesson : trainingSet) {
+			for (int count = 0; count < trainingSet.length; count++) {
 
-				RBMUtils.setValues(visible, lesson);
+				RBMUtils.setValues(visible, trainingSet[count]);
+				RBMUtils.setVBias(visibleBias, visibleB, count);
 				
 				RBMUtils.update0(visible, hidden, visibleBias, hiddenBias, weights);
 				

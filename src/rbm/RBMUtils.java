@@ -19,9 +19,12 @@ public class RBMUtils {
 		// 0
 	}
 
-	public static void initializeWeights(double[][] weights, double n) {
+	public static void initializeWeights(double[][] weights) {
 		for (int i = 0; i < weights.length; i++) {
 			for (int j = 0; j < weights[i].length; j++) {
+				// nextGaussian return value with mean 0.0
+				// and standard deviation 1.0, as we would like
+				// it to be 0.01, we multiply with 0.01
 				weights[i][j] = randi.nextGaussian() * 0.01;
 			}
 		}
@@ -47,14 +50,7 @@ public class RBMUtils {
 
 
 
-	public static double[] getValues(double[] d, 
-			double[] bias) {
-		double[] vals = new double[d.length];
-		for (int i = 0; i < d.length; i++) {
-			vals[i] = activationFunction(d[i] + bias[i]);
-		}
-		return vals;
-	}
+
 
 
 	public static void update0(double[] visible, double[] hidden,
@@ -162,6 +158,25 @@ public class RBMUtils {
 		}
 
 		return energy;
+	}
+
+	public static double getP(double[] lesson) {
+		double p = 0;
+		
+		for (double i : lesson) {
+			if (i == 1) p++;
+		}
+		p = p / lesson.length;
+		System.out.println(p);
+		return p;
+	}
+
+	public static void setVBias(double[] visibleBias, double[] visibleB,
+			int count) {
+		for (int i = 0; i < visibleBias.length; i++) {
+			visibleBias[i] = visibleB[count];
+		}
+		
 	}
 
 }
