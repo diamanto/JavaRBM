@@ -2,17 +2,13 @@ package rbm;
 
 import java.util.Random;
 
+import picture_processing.Picture;
+import picture_processing.Utils;
+import picture_processing.Color;
+
 public class RBMUtils {
 
 	public static Random randi = new Random();
-
-	public static void initializeVisibleBias(double[] visibleBias,
-			double n) {
-		for (int i = 0; i < visibleBias.length; i++) {
-			visibleBias[i] = randi.nextGaussian() * n;
-		}
-
-	}
 
 	public static void initializeHiddenBias(double[] hiddenBias,
 			double initialBiasScaleFactor) {
@@ -47,10 +43,6 @@ public class RBMUtils {
 			old[i] = newOne[i];
 		}
 	}
-
-
-
-
 
 
 	public static void update0(double[] visible, double[] hidden,
@@ -111,10 +103,10 @@ public class RBMUtils {
 	}
 
 	public static void updateWeights(double[][] weights, double[][] data,
-			double[][] recon, double[] visible, double[] hidden) {
-		for (int i = 0; i < visible.length; i++) {
-			for (int j = 0; j < hidden.length; j++) {
-				weights[i][j] += (data[i][j] - recon[i][j]) * 0.01;
+			double[][] recon, double rate) {
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[i].length; j++) {
+				weights[i][j] += (data[i][j] - recon[i][j]) * rate;
 			}
 		}
 
@@ -161,13 +153,12 @@ public class RBMUtils {
 	}
 
 	public static double getP(double[] lesson) {
-		double p = 0;
-		
+
+		double p = 0;		
 		for (double i : lesson) {
 			if (i == 1) p++;
 		}
 		p = p / lesson.length;
-		System.out.println(p);
 		return p;
 	}
 
@@ -175,6 +166,115 @@ public class RBMUtils {
 			int count) {
 		for (int i = 0; i < visibleBias.length; i++) {
 			visibleBias[i] = visibleB[count];
+		}
+
+	}
+
+	public static void printMovies(double[][] weights) {
+		String[] movies = {"Bias        ", "Harry Potter", "Avatar      ",
+				"LOTR 3      ", "Gladiator   ", "Titanic      ", "Glitter     "};
+
+		StringBuilder kaki = new StringBuilder();
+		for (int i = 0; i < weights.length; i++) {
+
+			kaki.append(movies[i] + "\t\t");
+			for (int j = 0; j < weights[i].length; j++) {
+				kaki.append(weights[i][j] + "\t");
+			}
+			kaki.append("\n");
+		}
+
+		System.out.println(kaki.toString());
+
+		for (int i = 0; i < weights.length; i++) {
+			System.out.print(movies[i] + "\t\t");
+			for (int j = 0; j < weights[i].length; j++) {
+				System.out.print((weights[i][j] > 0) + "\t");
+			}
+			System.out.println();
+		}
+
+	}
+
+	public static void toPicture(double[] vis) {
+		Picture image = Utils.createPicture(16, 16);
+		Color szin;
+		int count = 0;
+		for (int h = 0; h < 16; h++) {
+			for (int w = 0; w < 16; w++) {
+				szin = vis[count] == 1 ? new Color(0, 0, 0) : new Color(255, 255, 255);
+				image.setPixel(w, h, szin);
+				count++;
+			}
+		}
+
+		Utils.savePicture(image, "images/result.png");
+	}
+
+	public static void featuresToPicture(double[][] weights, double[] visible, double[] hidden) {
+		Picture image = Utils.createPicture(5 * 17, 5 * 17);
+		
+		Color c;
+		Color[] picCol = new Color[256];
+		
+		int startX = 0;
+		int startY = 0;
+		
+		double maxW = 0;
+		double minW = 0;
+		double dif;
+		
+		for (int j = 0; j < hidden.length; j++) {
+			for (int i = 0; i < visible.length; i++) {
+				if (weights[i][j] > maxW) maxW = weights[i][j];
+				if (weights[i][j] < minW) minW = weights[i][j];
+			}
+		}
+		
+		dif = maxW - minW;
+		
+		double shade;
+		
+		int numHid = 0;
+		for (int h = 0; h < image.getHeight(); h = h + 17) {
+			for (int w = 0; w < image.getWidth(); w = w + 17) {
+				drawPicture(weights, visible, hidden, numHid, h, w, dif, minW, image);
+				numHid++;
+			}
+		}
+		
+		
+		
+		for (int i = 17; i < 5*17; i = i + 17) {
+			for (int j = 0; j < 5*17; j++) {
+				image.setPixel(i, j, new Color(0, 0, 0));
+			}
+		}
+		
+		for (int i = 0; i < 5*17; i++) {
+			for (int j = 17; j < 5*17; j = j+17) {
+				image.setPixel(i, j, new Color(0, 0, 0));
+			}
+		}
+		
+		Utils.savePicture(image, "images/features.png");
+		
+	}
+
+	private static void drawPicture(double[][] weights, double[] visible,
+			double[] hidden, int numHid, int h, int w, double dif, double minW, Picture image) {
+		double shade;
+		int numVis = 0;
+		//Color[] picCol = new Color[256];
+		for (int j = h; j < h + 16; j++) {
+			for (int i = w; i < w + 16; i++) {
+				shade = (weights[numVis][numHid] - minW) / dif;;
+				shade *= 255;
+				//shade -= 255;
+				int s = (int) shade;
+				image.setPixel(i, j, new Color(s, s, s)); 
+				numVis++;
+			}
 		}
 		
 	}

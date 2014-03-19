@@ -2,16 +2,16 @@ package rbm;
 
 public class RBM {
 
+	private final double LEARNING_RATE;
 	private double[] visibleBias;
 	private double[] hiddenBias;
-
 	private double[] visible;
 	private double[] hidden;
-
 	private double[][] weights;
 
-	public RBM(int numVisible, int numHidden) {
+	public RBM(int numVisible, int numHidden, double rate) {
 
+		this.LEARNING_RATE = rate;
 		visibleBias = new double[numVisible];
 		visible = new double[numVisible];
 		hiddenBias = new double[numHidden];
@@ -22,7 +22,7 @@ public class RBM {
 
 	}
 
-	public void train(double[][] trainingSet, double learningRate, int numEpochs) {
+	public void train(double[][] trainingSet, int numEpochs) {
 		
 		double[] visibleB = new double[trainingSet.length];
 		
@@ -49,29 +49,37 @@ public class RBM {
 				
 				double[][] recon = RBMUtils.computeRecon(visible, hidden, visibleBias, hiddenBias);
 				
-				RBMUtils.updateWeights(weights, data, recon, visible, hidden);
+				RBMUtils.updateWeights(weights, data, recon, LEARNING_RATE);
 				
 			}
 		}
 
 	}
 
-	public void getResult() {
-	
+	public void printVisible() {
 		RBMUtils.printVisible(visible);
-		
+		RBMUtils.toPicture(visible);
 	}
 
 	public void randomHidden() {
 		RBMUtils.randomHidden(hidden);
 		RBMUtils.reconstruct(visible, hidden, visibleBias, hiddenBias, weights);
-		getResult();
+		printVisible();
 	}
 
 	public void getEnergy() {
 		double e = RBMUtils.getEnergy(visible, visibleBias, hidden, hiddenBias, weights);
 		System.out.println("\n\n" + e);
 	}
+
+	public void printMovies() {
+		RBMUtils.printMovies(weights);
+	}
+	
+	public void featuresToPicture() {
+		RBMUtils.featuresToPicture(weights, visible, hidden);
+	}
+		
 }
 
 
