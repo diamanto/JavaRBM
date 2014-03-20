@@ -283,4 +283,13 @@ public class RBMUtils {
 		return img2;
 	}
 
+	public static void setValues(double[][] oldOne, double[][] newOne) {
+		for (int i = 0; i < oldOne.length; i++) {
+			for (int j = 0; j < oldOne[0].length; j++) {
+				oldOne[i][j] = newOne[i][j];
+			}
+		}
+		
+	}
+
 }
