@@ -1,10 +1,12 @@
 package rbm;
 
+
+
 import java.util.Random;
 
+import picture_processing.Color;
 import picture_processing.Picture;
 import picture_processing.Utils;
-import picture_processing.Color;
 
 public class RBMUtils {
 
@@ -109,19 +111,16 @@ public class RBMUtils {
 				weights[i][j] += (data[i][j] - recon[i][j]) * rate;
 			}
 		}
-
-
 	}
 
 	public static void printVisible(double[] visible) {
-		//Picture image = new Picture("images/result.png");
+
 		for (int i = 0; i < visible.length; i++) {
 			if (i % 16 == 0) {
 				System.out.println();
 			}
 			System.out.print((int) visible[i]);
 		}
-
 	}
 
 	public static void randomHidden(double[] hidden) {
@@ -211,9 +210,8 @@ public class RBMUtils {
 		Utils.savePicture(image, "images/result.png");
 	}
 
-	public static void featuresToPicture(double[][] weights, double[] visible, double[] hidden) {
-		Picture image = Utils.createPicture(5 * 17, 5 * 17);
-		
+	public static Picture featuresToPicture(double[][] weights, double[] visible, double[] hidden) {
+		Picture image = Utils.createPicture(5 * 17, 5 * 17);		
 		
 		double maxW = 0;
 		double minW = 0;
@@ -235,22 +233,13 @@ public class RBMUtils {
 				numHid++;
 			}
 		}
-		
-		
-		
-		for (int i = 17; i < 5*17; i = i + 17) {
-			for (int j = 0; j < 5*17; j++) {
-				image.setPixel(i, j, new Color(0, 0, 0));
+		Picture big = Utils.createPicture(image.getWidth()*3, image.getHeight()*3);
+		for (int i = 0; i < image.getWidth()*3; i++) {
+			for (int j = 0; j < image.getHeight()*3; j++) {
+				big.setPixel(i, j, image.getPixel(i/3, j/3));
 			}
 		}
-		
-		for (int i = 0; i < 5*17; i++) {
-			for (int j = 17; j < 5*17; j = j+17) {
-				image.setPixel(i, j, new Color(0, 0, 0));
-			}
-		}
-		
-		Utils.savePicture(image, "images/features.png");
+		return big;
 		
 	}
 
@@ -264,7 +253,8 @@ public class RBMUtils {
 				shade *= 255;
 				shade -= 255;
 				int s = (int) shade;
-				image.setPixel(i, j, new Color(s, s, s)); 
+				image.setPixel(i, j, new Color(s, s, s));
+				
 				numVis++;
 			}
 		}

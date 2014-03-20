@@ -1,5 +1,9 @@
 package rbm;
 
+import java.awt.image.BufferedImage;
+
+import picture_processing.Picture;
+
 public class RBM {
 
 	private final double LEARNING_RATE;
@@ -58,7 +62,15 @@ public class RBM {
 
 	public void printVisible() {
 		RBMUtils.printVisible(visible);
-		RBMUtils.toPicture(visible);
+		
+	}
+	
+	public void getResult() {
+		
+	}
+	
+	public BufferedImage getFeaturImage() {
+		return PictureUtils.getFeatureImage(weights, visible, hidden);
 	}
 
 	public void randomHidden() {
@@ -76,8 +88,8 @@ public class RBM {
 		RBMUtils.printMovies(weights);
 	}
 	
-	public void featuresToPicture() {
-		RBMUtils.featuresToPicture(weights, visible, hidden);
+	public Picture featuresToPicture() {
+		return RBMUtils.featuresToPicture(weights, visible, hidden);
 	}
 		
 }

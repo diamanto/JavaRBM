@@ -1,5 +1,8 @@
 package rbm;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+
 public class PictureUtils {
 
 
@@ -38,9 +41,13 @@ public class PictureUtils {
 				result[16 * i + j] = dd16[i][j];
 			}
 		}
-
-
 		return result;
+	}
+
+	public static BufferedImage getFeatureImage(double[][] weights, double[] visible,
+			double[] hidden) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

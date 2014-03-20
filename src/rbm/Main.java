@@ -1,8 +1,5 @@
 package rbm;
 
-import picture_processing.Color;
-import picture_processing.Picture;
-import picture_processing.Utils;
 
 
 public class Main {
@@ -14,7 +11,7 @@ public class Main {
 
 		RBM rbm = new RBM(256, 25, 0.01);
 
-		rbm.train(trainingSet, 100);
+		rbm.train(trainingSet, 2000);
 		rbm.printVisible();
 		rbm.featuresToPicture();
 		rbm.getEnergy();

@@ -9,21 +9,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 
 import javax.swing.JApplet;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import picture_processing.Picture;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class RBMApplet extends JApplet {
 
-	Image temp;
-	Picture pic;
-	PixelGrabber pg;
-	int[] pixels;
-	double[][] trainingSet;
+	int numHidden = 0;
+	double[][] trainingSet = new double[10][256];
 	int count = 0;
 
 	public void init() {
@@ -32,41 +34,29 @@ public class RBMApplet extends JApplet {
 
 	public RBMApplet() {
 
-		JPanel panel = new JPanel();
-		panel.setBounds(255, 11, 185, 342);
-
-		JButton btnTrain = new JButton("Train");
-		btnTrain.setBounds(10, 159, 57, 23);
-		btnTrain.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TrainingSet ts = new TrainingSet();
-				double[][] trainingSet = ts.getTrainingSet();
-
-				RBM rbm = new RBM(256, 25, 0.01);
-
-				rbm.train(trainingSet, 100);
-				rbm.printVisible();
-				rbm.featuresToPicture();
-				rbm.getEnergy();
-
-			}
-		});
+		final JPanel panel = new JPanel();
+		panel.setBackground(Color.WHITE);
+		
+		final JButton btnTrain = new JButton("Train");
 
 		JPanel pnlResult = new JPanel();
-		pnlResult.setBounds(10, 225, 128, 128);
+		pnlResult.setBackground(Color.WHITE);
 
 		JPanel pnlDrawTable = new JPanel();
-		pnlDrawTable.setBounds(10, 10, 128, 128);
+		pnlDrawTable.setBackground(Color.WHITE);
 
 		JButton btnClear = new JButton("Clear");
-		btnClear.setBounds(10, 196, 57, 23);
+
+		final JLabel lblNewLabel = new JLabel("no:");
 
 		JButton btnAdd = new JButton("Add");
-		btnAdd.setBounds(77, 159, 51, 23);
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-
+				lblNewLabel.setText("10/" + count);
+				if (count == 10) {
+					btnTrain.setEnabled(true);
+				}
 			}
 		});
 		pnlResult.setLayout(new CardLayout(0, 0));
@@ -75,14 +65,90 @@ public class RBMApplet extends JApplet {
 		btnClear.addActionListener(canvas2);
 		btnAdd.addActionListener(canvas2);
 		pnlDrawTable.add(canvas2);
-		getContentPane().setLayout(null);
-		getContentPane().add(pnlResult);
-		getContentPane().add(pnlDrawTable);
+		btnTrain.setEnabled(false);
+		btnTrain.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnTrain.setEnabled(false);
+				count = 0;
+
+				RBM rbm = new RBM(256, 25, 0.01);
+
+				rbm.train(trainingSet, 1000);
+				Picture image = rbm.featuresToPicture();
+				BufferedImage bi = image.getImage();
+				ImagePanel im = new ImagePanel(bi);
+				panel.add(im);
+				rbm.getEnergy();
+				revalidate();
+
+			}
+		});
 		pnlDrawTable.setLayout(new CardLayout(0, 0));
-		getContentPane().add(btnTrain);
-		getContentPane().add(btnAdd);
-		getContentPane().add(btnClear);
-		getContentPane().add(panel);
+		panel.setLayout(new CardLayout(0, 0));
+
+		JButton btnReset = new JButton("Reset");
+		btnReset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnTrain.setEnabled(true);
+				trainingSet = new double[10][256];
+				count = 0;
+				lblNewLabel.setText("no:");
+				panel.removeAll();
+				panel.revalidate();
+				revalidate();
+			}
+		});
+		
+		JLabel lblEnergy = new JLabel("Energy:");
+		GroupLayout groupLayout = new GroupLayout(getContentPane());
+		groupLayout.setHorizontalGroup(
+			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(10)
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addGroup(groupLayout.createSequentialGroup()
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+										.addComponent(pnlDrawTable, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+										.addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+										.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+										.addComponent(btnTrain, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE))
+									.addGap(10)
+									.addComponent(pnlResult, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
+									.addGap(58)
+									.addComponent(panel, GroupLayout.PREFERRED_SIZE, 256, GroupLayout.PREFERRED_SIZE))
+								.addComponent(btnReset, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(lblEnergy)))
+					.addContainerGap(10, Short.MAX_VALUE))
+		);
+		groupLayout.setVerticalGroup(
+			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addGap(10)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addComponent(pnlDrawTable, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
+							.addGap(12)
+							.addComponent(lblNewLabel)
+							.addGap(11)
+							.addComponent(btnAdd)
+							.addGap(11)
+							.addComponent(btnClear)
+							.addGap(11)
+							.addComponent(btnTrain))
+						.addComponent(pnlResult, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel, GroupLayout.PREFERRED_SIZE, 256, GroupLayout.PREFERRED_SIZE))
+					.addGap(7)
+					.addComponent(btnReset)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(lblEnergy)
+					.addContainerGap(79, Short.MAX_VALUE))
+		);
+		getContentPane().setLayout(groupLayout);
 
 	}
 
@@ -176,7 +242,7 @@ public class RBMApplet extends JApplet {
 				int w = OSI.getWidth(null);
 				int h = OSI.getHeight(null);
 				int[] pixels = new int[w * h];
-				pg = new PixelGrabber(OSI, 0, 0, w, h, pixels, 0, w);
+				PixelGrabber pg = new PixelGrabber(OSI, 0, 0, w, h, pixels, 0, w);
 				try {
 					pg.grabPixels();
 				} catch (InterruptedException e1) {
@@ -186,10 +252,13 @@ public class RBMApplet extends JApplet {
 				for (int i = 0; i < pixels.length; i++) {
 					pixels[i] = pixels[i] < -1 ? 1 : 0;			
 				}
-				
-				//trainingSet[count] = 
-						PictureUtils.convertTo256(pixels);
-				count++;
+
+
+				if (count < 10) {
+					trainingSet[count] = 
+							PictureUtils.convertTo256(pixels);
+					count++;
+				}
 			}
 
 
@@ -255,10 +324,32 @@ public class RBMApplet extends JApplet {
 		public void mouseClicked(MouseEvent evt) { }
 		public void mouseMoved(MouseEvent evt) { }
 
-
-
-
 	}
 
+	public class ImagePanel extends JPanel {
 
+		private static final long serialVersionUID = 7952119619331504986L;
+		private BufferedImage image;
+
+		public ImagePanel() { }
+
+		public ImagePanel(BufferedImage image) {
+			this.image = image;
+		}
+
+		@Override
+		public void paintComponent(Graphics g) {
+			g.drawImage(image, 0, 0, null); // see javadoc for more info on the parameters
+			g.dispose();
+		}
+
+		public BufferedImage getImage() {
+			return image;
+		}
+
+		public void setImage(BufferedImage image) {
+			this.image = image;
+		}
+
+	}
 }
