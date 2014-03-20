@@ -28,7 +28,8 @@ import javax.swing.JTextArea;
 
 public class RBMApplet extends JApplet {
 	
-	private double[][] trainingSet = new double[10][256];
+	private int tSetLength = 10;
+	private double[][] trainingSet = new double[tSetLength][256];
 	private double[][] testSet = new double[1][256];
 	private int count = 0;
 	private double energy;
@@ -52,12 +53,13 @@ public class RBMApplet extends JApplet {
 		final JButton btnCheckDigit = new JButton("Add to check");
 		final JLabel lblIsSame = new JLabel("N/A");
 		JButton btnCheck = new JButton("Check");
+		final JLabel lblSame = new JLabel("N/A");
 
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				lblNewLabel.setText("10/" + count);
-				if (count == 10) {
+				lblNewLabel.setText(count + "/" + tSetLength);
+				if (count == tSetLength) {
 					btnTrain.setEnabled(true);
 				}
 			}
@@ -77,7 +79,6 @@ public class RBMApplet extends JApplet {
 				count = 0;
 
 				rbm = new RBM(256, 25, 0.01);
-
 				rbm.train(trainingSet, 5000);
 				Picture image = rbm.featuresToPicture();
 				Picture image2 = rbm.getVisible();
@@ -86,8 +87,7 @@ public class RBMApplet extends JApplet {
 				panel.add(im);
 				pnlResult.add(im2);
 				energy = rbm.getEnergy();
-				lblEnergy.setText("Energy: " + energy);
-				
+				lblEnergy.setText("Energy: " + (int) energy);
 				revalidate();
 
 			}
@@ -99,15 +99,17 @@ public class RBMApplet extends JApplet {
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				btnTrain.setEnabled(false);
-				trainingSet = new double[10][256];
+				trainingSet = new double[tSetLength][256];
 				count = 0;
 				energy = 0;
-				lblIsSame.setText("");
+				lblIsSame.setText("N/A");
 				lblEnergy.setText("Energy: ");
 				lblNewLabel.setText("no:");
+				lblSame.setText("N/A");
+				pnlResult.removeAll();
 				panel.removeAll();
 				panel.revalidate();
-				trainingSet = new double[10][256];
+				trainingSet = new double[tSetLength][256];
 				revalidate();
 			}
 		});
@@ -129,6 +131,11 @@ public class RBMApplet extends JApplet {
 				rbm.train(testSet, 1);
 				double newEnergy = rbm.getEnergy();
 				lblIsSame.setText("Energy: " + newEnergy);
+				if (newEnergy < -110) {
+					lblSame.setText("looks similar");
+				} else {
+					lblSame.setText("looks different");
+				}
 				
 				Picture image2 = rbm.getVisible();
 				ImagePanel im2 = new ImagePanel(image2.getImage());
@@ -147,7 +154,8 @@ public class RBMApplet extends JApplet {
 		JLabel lblReconstruction = new JLabel("Reconstruction:");
 		
 		JTextArea txtrInstructionsDraw = new JTextArea();
-		txtrInstructionsDraw.setText("Instructions:\r\n1. Draw the same digit 10 times, click 'Add' after each\r\n2. Train the RBM, click 'Train'\r\n3. See the detected features\r\n4. Draw a digit to check how close it is to your digit\r\nclick 'Add to check' then 'Check'");
+		txtrInstructionsDraw.setText("Instructions:\r\n1. Draw the same digit 10 times, click 'Add' after each\r\n2. Train the RBM, click 'Train'\r\n3. See the detected features\r\n4. Draw a digit to check how close it is to your digit\r\nclick 'Add to check' then 'Check' (this step can be repeated)\r\nNote: please follow the instructions, \r\notherwise the program performs undesired behaviour");
+		
 		
 
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
@@ -159,24 +167,24 @@ public class RBMApplet extends JApplet {
 						.addComponent(btnTrain, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
 						.addGroup(groupLayout.createSequentialGroup()
 							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-									.addComponent(lblIsSame)
-									.addComponent(lblEnergy)
-									.addGroup(groupLayout.createSequentialGroup()
-										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-											.addComponent(pnlDrawTable, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
-											.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
-											.addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
-											.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
-											.addComponent(lblDrawingArea))
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-											.addComponent(lblReconstruction)
-											.addComponent(pnlResult, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
-											.addComponent(btnCheckDigit)
-											.addComponent(btnCheck))))
-								.addComponent(btnReset, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE))
-							.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(lblEnergy)
+								.addComponent(btnReset, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+								.addGroup(groupLayout.createSequentialGroup()
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+										.addComponent(pnlDrawTable, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+										.addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+										.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblDrawingArea)
+										.addComponent(lblIsSame))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+										.addComponent(lblSame)
+										.addComponent(lblReconstruction)
+										.addComponent(pnlResult, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
+										.addComponent(btnCheckDigit)
+										.addComponent(btnCheck))))
+							.addPreferredGap(ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
 							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 								.addComponent(lblDetectedfeatures)
 								.addComponent(panel, GroupLayout.PREFERRED_SIZE, 256, GroupLayout.PREFERRED_SIZE)
@@ -216,11 +224,13 @@ public class RBMApplet extends JApplet {
 							.addPreferredGap(ComponentPlacement.UNRELATED)
 							.addComponent(lblEnergy)
 							.addGap(20)
-							.addComponent(lblIsSame)
+							.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblIsSame)
+								.addComponent(lblSame))
 							.addContainerGap(42, Short.MAX_VALUE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addComponent(panel, GroupLayout.PREFERRED_SIZE, 256, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
 							.addComponent(txtrInstructionsDraw, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addGap(30))))
 		);
@@ -303,7 +313,7 @@ public class RBMApplet extends JApplet {
 				}
 
 
-				if (count < 10) {
+				if (count < tSetLength) {
 					trainingSet[count] =
 							PictureUtils.convertTo256(pixels);
 					count++;

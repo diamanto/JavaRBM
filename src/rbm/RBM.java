@@ -19,12 +19,9 @@ public class RBM {
 		this.LEARNING_RATE = rate;
 		visibleBias = new double[numVisible];
 		visible = new double[numVisible];
-		vCopy = new double[numVisible];
 		hiddenBias = new double[numHidden];
 		hidden = new double[numHidden];
-		hCopy = new double[numHidden];
 		weights = new double[numVisible][numHidden];
-		wCopy = new double[numVisible][numHidden];
 
 		RBMUtils.initializeWeights(weights);
 
@@ -94,6 +91,10 @@ public class RBM {
 	}
 
 	public void saveValues() {
+		vCopy = new double[visible.length];
+		hCopy = new double[hidden.length];
+		wCopy = new double[visible.length][hidden.length];
+		
 		RBMUtils.setValues(vCopy, visible);
 		RBMUtils.setValues(hCopy, hidden);
 		RBMUtils.setValues(wCopy, weights);
