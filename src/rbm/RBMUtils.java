@@ -261,4 +261,26 @@ public class RBMUtils {
 		
 	}
 
+	public static Picture getVisible(double[] visible) {
+		Picture img = Utils.createPicture(16, 16);
+		int count = 0;
+		Color szin;
+		for (int i = 0; i < 16; i++) {
+			for (int j = 0; j < 16; j++) {
+				szin = visible[count] == 1 ? new Color(0, 0, 0) : new Color(255, 255, 255);
+				img.setPixel(j, i, szin);
+				count++;
+			}
+		}
+		 
+		Picture img2 = Utils.createPicture(128, 128);
+		for (int i = 0; i < 128; i++) {
+			for (int j = 0; j < 128; j++) {
+				img2.setPixel(i, j, img.getPixel(i/8, j/8));
+			}
+		}
+		
+		return img2;
+	}
+
 }

@@ -1,7 +1,5 @@
 package rbm;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 
 public class PictureUtils {
 
@@ -28,26 +26,17 @@ public class PictureUtils {
 			}
 		}
 
-		for (int i = 0; i < 16; i++) {
-			for (int j = 0; j < 16; j++) {
-				System.out.print((int) dd16[i][j]);
-			}
-			System.out.println();
-		}
-
 		double[] result = new double[256];
 		for (int i = 0; i < 16; i++) {
 			for (int j = 0; j < 16; j++) {
 				result[16 * i + j] = dd16[i][j];
 			}
 		}
+		
+		for (int i = 0; i < pixels.length; i++) {
+			//result[i] = pixels[i];
+		}
 		return result;
-	}
-
-	public static BufferedImage getFeatureImage(double[][] weights, double[] visible,
-			double[] hidden) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

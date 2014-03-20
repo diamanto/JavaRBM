@@ -1,7 +1,5 @@
 package rbm;
 
-import java.awt.image.BufferedImage;
-
 import picture_processing.Picture;
 
 public class RBM {
@@ -65,23 +63,20 @@ public class RBM {
 		
 	}
 	
-	public void getResult() {
+	public Picture getVisible() {
+		return RBMUtils.getVisible(visible);
 		
 	}
 	
-	public BufferedImage getFeaturImage() {
-		return PictureUtils.getFeatureImage(weights, visible, hidden);
-	}
-
 	public void randomHidden() {
 		RBMUtils.randomHidden(hidden);
 		RBMUtils.reconstruct(visible, hidden, visibleBias, hiddenBias, weights);
 		printVisible();
 	}
 
-	public void getEnergy() {
+	public double getEnergy() {
 		double e = RBMUtils.getEnergy(visible, visibleBias, hidden, hiddenBias, weights);
-		System.out.println("\n\n" + e);
+		return e;
 	}
 
 	public void printMovies() {

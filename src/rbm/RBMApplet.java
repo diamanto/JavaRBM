@@ -23,33 +23,30 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class RBMApplet extends JApplet {
-
-	int numHidden = 0;
-	double[][] trainingSet = new double[10][256];
-	int count = 0;
-
-	public void init() {
-
-	}
+	;
+	private double[][] trainingSet = new double[10][256];
+	private int count = 0;
+	private double energy;
+	private RBM rbm;
 
 	public RBMApplet() {
 
 		final JPanel panel = new JPanel();
-		panel.setBackground(Color.WHITE);
-		
 		final JButton btnTrain = new JButton("Train");
-
-		JPanel pnlResult = new JPanel();
+		final JLabel lblEnergy = new JLabel("Energy:");
+		panel.setBackground(Color.WHITE);
+		final JPanel pnlResult = new JPanel();
 		pnlResult.setBackground(Color.WHITE);
-
-		JPanel pnlDrawTable = new JPanel();
+		final JPanel pnlDrawTable = new JPanel();
 		pnlDrawTable.setBackground(Color.WHITE);
-
-		JButton btnClear = new JButton("Clear");
-
+		final JButton btnClear = new JButton("Clear");
 		final JLabel lblNewLabel = new JLabel("no:");
+		final JButton btnAdd = new JButton("Add");
+		final Display canvas2 = new Display();
+		final JButton btnReset = new JButton("Reset");
+		final JButton btnCheckDigit = new JButton("check digit");
+		final JLabel lblIsSame = new JLabel("N/A");
 
-		JButton btnAdd = new JButton("Add");
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -61,9 +58,11 @@ public class RBMApplet extends JApplet {
 		});
 		pnlResult.setLayout(new CardLayout(0, 0));
 
-		Display canvas2 = new Display();
+
 		btnClear.addActionListener(canvas2);
 		btnAdd.addActionListener(canvas2);
+		btnCheckDigit.addActionListener(canvas2);
+
 		pnlDrawTable.add(canvas2);
 		btnTrain.setEnabled(false);
 		btnTrain.addActionListener(new ActionListener() {
@@ -71,14 +70,18 @@ public class RBMApplet extends JApplet {
 				btnTrain.setEnabled(false);
 				count = 0;
 
-				RBM rbm = new RBM(256, 25, 0.01);
+				rbm = new RBM(256, 25, 0.01);
 
-				rbm.train(trainingSet, 1000);
+				rbm.train(trainingSet, 5000);
 				Picture image = rbm.featuresToPicture();
-				BufferedImage bi = image.getImage();
-				ImagePanel im = new ImagePanel(bi);
+				Picture image2 = rbm.getVisible();
+				ImagePanel im = new ImagePanel(image.getImage());
+				ImagePanel im2 = new ImagePanel(image2.getImage());
 				panel.add(im);
-				rbm.getEnergy();
+				pnlResult.add(im2);
+				energy = rbm.getEnergy();
+				lblEnergy.setText("Energy: " + energy);
+				
 				revalidate();
 
 			}
@@ -86,67 +89,89 @@ public class RBMApplet extends JApplet {
 		pnlDrawTable.setLayout(new CardLayout(0, 0));
 		panel.setLayout(new CardLayout(0, 0));
 
-		JButton btnReset = new JButton("Reset");
+
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				btnTrain.setEnabled(true);
+				btnTrain.setEnabled(false);
 				trainingSet = new double[10][256];
 				count = 0;
+				energy = 0;
+				lblIsSame.setText("");
+				lblEnergy.setText("Energy: ");
 				lblNewLabel.setText("no:");
 				panel.removeAll();
 				panel.revalidate();
 				revalidate();
 			}
 		});
+
+		btnCheckDigit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rbm.train(trainingSet, 1);
+				double newEnergy = rbm.getEnergy();
+				lblIsSame.setText("Energy: " + newEnergy);
+				
+				Picture image2 = rbm.getVisible();
+				ImagePanel im2 = new ImagePanel(image2.getImage());
+				pnlResult.removeAll();
+				pnlResult.add(im2);
+				
+				revalidate();
+				
+			}
+		});
 		
-		JLabel lblEnergy = new JLabel("Energy:");
+
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
+					.addGap(27)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(lblIsSame)
 						.addGroup(groupLayout.createSequentialGroup()
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addComponent(pnlDrawTable, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnTrain, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnReset, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE))
 							.addGap(10)
 							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addGroup(groupLayout.createSequentialGroup()
-									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-										.addComponent(pnlDrawTable, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
-										.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
-										.addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
-										.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
-										.addComponent(btnTrain, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE))
-									.addGap(10)
-									.addComponent(pnlResult, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
-									.addGap(58)
-									.addComponent(panel, GroupLayout.PREFERRED_SIZE, 256, GroupLayout.PREFERRED_SIZE))
-								.addComponent(btnReset, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(lblEnergy)))
-					.addContainerGap(10, Short.MAX_VALUE))
+								.addComponent(pnlResult, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnCheckDigit))
+							.addGap(41)
+							.addComponent(panel, GroupLayout.PREFERRED_SIZE, 256, GroupLayout.PREFERRED_SIZE))
+						.addComponent(lblEnergy))
+					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(10)
+					.addGap(40)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
 							.addComponent(pnlDrawTable, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
 							.addGap(12)
 							.addComponent(lblNewLabel)
 							.addGap(11)
-							.addComponent(btnAdd)
+							.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+								.addComponent(btnAdd)
+								.addComponent(btnCheckDigit))
 							.addGap(11)
 							.addComponent(btnClear)
 							.addGap(11)
-							.addComponent(btnTrain))
+							.addComponent(btnTrain)
+							.addGap(7)
+							.addComponent(btnReset)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(lblEnergy))
 						.addComponent(pnlResult, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
 						.addComponent(panel, GroupLayout.PREFERRED_SIZE, 256, GroupLayout.PREFERRED_SIZE))
-					.addGap(7)
-					.addComponent(btnReset)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(lblEnergy)
-					.addContainerGap(79, Short.MAX_VALUE))
+					.addComponent(lblIsSame)
+					.addContainerGap(24, Short.MAX_VALUE))
 		);
 		getContentPane().setLayout(groupLayout);
 
@@ -155,57 +180,35 @@ public class RBMApplet extends JApplet {
 	private class Display extends JPanel 
 	implements MouseListener, MouseMotionListener, ActionListener {
 
-		Image OSI;  // The off-screen image (created in checkOSI()).
-
-		int widthOfOSI, heightOfOSI;  // Current width and height of OSI.  These
-		// are checked against the size of the applet,
-		// to detect any change in the panel's size.
-		// If the size has changed, a new OSI is created.
-		// The picture in the off-screen image is lost
-		// when that happens.
-
-
-		/* The following variables are used when the user is sketching a
-         curve while dragging a mouse. */
-
-		private int mouseX, mouseY;   // The location of the mouse.
-
-		private int prevX, prevY;     // The previous location of the mouse.)
-
-		private boolean dragging;     // This is set to true when the user is drawing.
-
-		private Graphics dragGraphics;  // A graphics context for the off-screen image,
-		// to be used while a drag is in progress.
-
+		Image OSI;
+		int widthOfOSI, heightOfOSI;
+		private int mouseX, mouseY;
+		private int prevX, prevY;
+		private boolean dragging;
+		private Graphics dragGraphics;
 
 		Display() {
-			// Constructor.  When this component is first created, it is set to
-			// listen for mouse events and mouse motion events from
-			// itself.  The initial background color is white.
 			addMouseListener(this);
 			addMouseMotionListener(this);
 			setBackground(Color.white);
 		}
 
 		private void repaintRect(int x1, int y1, int x2, int y2) {
-			// Call repaint on a rectangle that contains the points (x1,y1)
-			// and (x2,y2).  (Add a 1-pixel border along right and bottom 
-			// edges to allow for the pen overhang when drawing a line.)
-			int x, y;  // top left corner of rectangle that contains the figure
-			int w, h;  // width and height of rectangle that contains the figure
-			if (x2 >= x1) {  // x1 is left edge
+			int x, y;
+			int w, h;
+			if (x2 >= x1) {
 				x = x1;
 				w = x2 - x1;
 			}
-			else {          // x2 is left edge
+			else {
 				x = x2;
 				w = x1 - x2;
 			}
-			if (y2 >= y1) {  // y1 is top edge
+			if (y2 >= y1) {
 				y = y1;
 				h = y2 - y1;
 			}
-			else {          // y2 is top edge.
+			else {
 				y = y2;
 				h = y1 - y2;
 			}
@@ -214,22 +217,17 @@ public class RBMApplet extends JApplet {
 
 
 		private void checkOSI() {
-			// This method is responsible for creating the off-screen image. 
-			// It should be called before using the OSI.  It will make a new OSI if
-			// the size of the panel changes.
 			if (OSI == null || widthOfOSI != getSize().width || heightOfOSI != getSize().height) {
-				// Create the OSI, or make a new one if panel size has changed.
-				OSI = null;  // (If OSI already exists, this frees up the memory.)
+				OSI = null;
 				OSI = createImage(getSize().width, getSize().height);
 				widthOfOSI = getSize().width;
 				heightOfOSI = getSize().height;
-				Graphics OSG = OSI.getGraphics();  // Graphics context for drawing to OSI.
+				Graphics OSG = OSI.getGraphics();
 				OSG.setColor(Color.white);
 				OSG.fillRect(0, 0, widthOfOSI, heightOfOSI);
 				OSG.dispose();
 			}
 		}
-
 
 		public void paintComponent(Graphics g) {
 			checkOSI();
@@ -246,7 +244,7 @@ public class RBMApplet extends JApplet {
 				try {
 					pg.grabPixels();
 				} catch (InterruptedException e1) {
-					System.out.println("szivas");
+					System.out.println("oh");
 				}
 
 				for (int i = 0; i < pixels.length; i++) {
@@ -255,12 +253,31 @@ public class RBMApplet extends JApplet {
 
 
 				if (count < 10) {
-					trainingSet[count] = 
+					trainingSet[count] =
 							PictureUtils.convertTo256(pixels);
 					count++;
 				}
-			}
+			} 
+			
+			if (evt.getActionCommand().equals("check digit")) {
+				int w = OSI.getWidth(null);
+				int h = OSI.getHeight(null);
+				int[] pixels = new int[w * h];
+				PixelGrabber pg = new PixelGrabber(OSI, 0, 0, w, h, pixels, 0, w);
+				try {
+					pg.grabPixels();
+				} catch (InterruptedException e1) {
+					System.out.println("oh");
+				}
 
+				for (int i = 0; i < pixels.length; i++) {
+					pixels[i] = pixels[i] < -1 ? 1 : 0;			
+				}
+				
+				trainingSet = new double[1][256];
+				trainingSet[0] = PictureUtils.convertTo256(pixels);
+
+			}
 
 			checkOSI();
 			Graphics g = OSI.getGraphics();
@@ -276,13 +293,13 @@ public class RBMApplet extends JApplet {
 			if (dragging == true)
 				return;
 
-			prevX = evt.getX();  // Save mouse coordinates.
+			prevX = evt.getX(); 
 			prevY = evt.getY();
 
 			dragGraphics = OSI.getGraphics();
 			dragGraphics.setColor(Color.black);
 
-			dragging = true;  // Start drawing.
+			dragging = true;
 
 		} 
 
@@ -328,10 +345,7 @@ public class RBMApplet extends JApplet {
 
 	public class ImagePanel extends JPanel {
 
-		private static final long serialVersionUID = 7952119619331504986L;
 		private BufferedImage image;
-
-		public ImagePanel() { }
 
 		public ImagePanel(BufferedImage image) {
 			this.image = image;
@@ -339,17 +353,8 @@ public class RBMApplet extends JApplet {
 
 		@Override
 		public void paintComponent(Graphics g) {
-			g.drawImage(image, 0, 0, null); // see javadoc for more info on the parameters
+			g.drawImage(image, 0, 0, null);
 			g.dispose();
 		}
-
-		public BufferedImage getImage() {
-			return image;
-		}
-
-		public void setImage(BufferedImage image) {
-			this.image = image;
-		}
-
 	}
 }
